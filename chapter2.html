@@ -1,64 +1,106 @@
-<script>
-document.addEventListener("DOMContentLoaded", () => {
+<!DOCTYPE html>
+<html lang="en">
 
-    pdfjsLib.GlobalWorkerOptions.workerSrc =
-        "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.css" rel="stylesheet" />
+  <link href='https://cdn.boxicons.com/fonts/basic/boxicons.min.css' rel='stylesheet'>
+  <link rel="stylesheet" href="src/style.css">
 
-    const url = "/pdfs/Chapter 2.pdf";
-    const pdfWrapper = document.querySelector(".pdf-wrapper");
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
+
+  <title>Chapter 2</title>
+</head>
+
+<body>
+
+  <div id="header"></div>
+
+  <section id="syllabus" class="pdf-section py-8">
+    <div class="pdf-wrapper flex flex-col items-center gap-6 overflow-y-auto w-full px-4">
+      <!-- PDF pages will be rendered here -->
+    </div>
+  </section>
+
+  <div id="footer"></div>
+
+  <style>
+    .pdf-wrapper canvas {
+      width: 100%;
+      /* make it scale horizontally */
+      height: auto;
+      /* maintain aspect ratio */
+      display: block;
+    }
+  </style>
+  <script src="https://mozilla.github.io/pdf.js/build/pdf.js"></script>
+  <script>
+    const url = '/pdfs/Chapter 2.pdf'; // your PDF file path
+    const pdfWrapper = document.querySelector('.pdf-wrapper');
     let pdfDoc = null;
 
+    // Function to render all pages
     function renderPDF() {
-        pdfWrapper.innerHTML = "";
+      pdfWrapper.innerHTML = ''; // clear previous canvas
 
-        const containerWidth = pdfWrapper.clientWidth;
+      const containerWidth = pdfWrapper.clientWidth;
 
-        for (let pageNum = 1; pageNum <= pdfDoc.numPages; pageNum++) {
+      for (let pageNum = 1; pageNum <= pdfDoc.numPages; pageNum++) {
+        pdfDoc.getPage(pageNum).then(page => {
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
 
-            pdfDoc.getPage(pageNum).then(page => {
+          const viewport = page.getViewport({ scale: 1 });
+          const scale = containerWidth / viewport.width;
+          const scaledViewport = page.getViewport({ scale });
 
-                const viewport = page.getViewport({ scale: 1 });
+          canvas.width = scaledViewport.width;
+          canvas.height = scaledViewport.height;
 
-                const scale = containerWidth / viewport.width;
+          page.render({ canvasContext: ctx, viewport: scaledViewport });
 
-                const scaledViewport = page.getViewport({
-                    scale: scale
-                });
-
-                const canvas = document.createElement("canvas");
-
-                const ctx = canvas.getContext("2d");
-
-                canvas.width = scaledViewport.width;
-                canvas.height = scaledViewport.height;
-
-                page.render({
-                    canvasContext: ctx,
-                    viewport: scaledViewport
-                });
-
-                pdfWrapper.appendChild(canvas);
-
-            });
-
-        }
-
+          pdfWrapper.appendChild(canvas);
+        });
+      }
     }
 
-    pdfjsLib.getDocument(url).promise
-        .then(pdf => {
-            pdfDoc = pdf;
-            renderPDF();
-        })
-        .catch(error => {
-            console.error("PDF Error:", error);
-        });
-
-    window.addEventListener("resize", () => {
-        if (pdfDoc) {
-            renderPDF();
-        }
+    // Load PDF
+    pdfjsLib.getDocument(url).promise.then(pdf => {
+      pdfDoc = pdf;
+      renderPDF();
     });
 
-});
-</script>
+    // Re-render PDF on window resize
+    window.addEventListener('resize', () => {
+      if (pdfDoc) {
+        renderPDF();
+      }
+    });
+  </script>
+
+  <script>
+    fetch('header.html')
+      .then(res => res.text())
+      .then(html => {
+        document.getElementById('header').innerHTML = html;
+      });
+
+    fetch('footer.html')
+      .then(res => res.text())
+      .then(html => {
+        document.getElementById('footer').innerHTML = html;
+      });
+  </script>
+
+
+
+
+
+  <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
+</body>
+
+</html>
