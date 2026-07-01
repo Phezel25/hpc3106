@@ -370,15 +370,11 @@
 
   <script>
 
-    fetch('./header.html')
-      .then(res => {
-        console.log("Status:", res.status);
-        return res.text();
-      })
+    fetch('header.html')
+      .then(res => res.text())
       .then(html => {
         document.getElementById('header').innerHTML = html;
-      })
-      .catch(err => console.error(err));
+      });
 
     fetch('footer.html')
       .then(res => res.text())
